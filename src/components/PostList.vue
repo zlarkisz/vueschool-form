@@ -20,6 +20,9 @@
         <div>
           <p>{{ post.text }}</p>
         </div>
+        <a href="#" style="margin-left: auto; padding-left:10px;" class="link-unstyled" title="Make a change">
+          <fa icon="pencil" />
+        </a>
       </div>
 
       <div v-if="post && post.publishedAt" class="post-date text-faded">
