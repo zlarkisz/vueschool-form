@@ -7,7 +7,9 @@ import {
   arrayUnion,
   writeBatch,
   serverTimestamp,
-  increment
+  increment,
+  updateDoc,
+  onSnapshot
 } from 'firebase/firestore'
 import { findById } from '@/helpers'
 
@@ -38,6 +40,24 @@ export default {
     commit('setItem', { resource: 'posts', item: { ...newPost.data(), id: newPost.id } }) // set the post
     commit('appendPostToThread', { childId: newPost.id, parentId: post.threadId }) // append post to thread
     commit('appendContributorToThread', { child: state.authId, parentId: post.threadId })
+  },
+
+  async updatePost ({ commit, state }, { text, id }) {
+    const db = getFirestore()
+    const post = {
+      text,
+      edited: {
+        at: serverTimestamp(),
+        by: state.authId,
+        moderated: false
+      }
+    }
+    const postRef = doc(db, 'posts', id)
+
+    await updateDoc(postRef, post)
+
+    const updatedPost = await getDoc(postRef)
+    commit('setItem', { resource: 'posts', item: updatedPost })
   },
 
   async createThread ({ commit, state, dispatch }, { text, title, forumId }) {
@@ -142,20 +162,23 @@ export default {
   async fetchItem ({ commit }, { id, emoji, resource }) {
     console.log('🔥', emoji, id)
     const db = getFirestore()
-    let item
 
-    try {
-      const snap = await getDoc(doc(db, resource, id))
-      item = { ...snap.data(), id: snap.id }
-      commit('setItem', { resource, id, item })
-    } catch (error) {
-      console.error(error)
-    }
-
-    return new Promise(resolve => resolve(item))
+    return new Promise(resolve => {
+      const unsubscribe = onSnapshot(doc(db, resource, id), doc => {
+        const item = { ...doc.data(), id: doc.id }
+        commit('setItem', { resource, id, item })
+        resolve(item)
+      })
+      commit('appendUnsubscribe', { unsubscribe })
+    })
   },
 
   fetchItems ({ dispatch }, { ids, resource, emoji }) {
     return Promise.all(ids?.map(id => dispatch('fetchItem', { id, resource, emoji })))
+  },
+
+  async unsubscribeAllSnapshots ({ state, commit }) {
+    state.unsubscribes.forEach(unsubscribe => unsubscribe())
+    commit('clearAllUnsubsribe')
   }
 }

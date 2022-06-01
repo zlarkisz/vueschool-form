@@ -3,9 +3,10 @@
     <h1>
       {{ thread.title }}
       <router-link
-        :to="{name: 'ThreadEdit', id: this.id}"
+        v-if="id"
+        :to="{ name: 'ThreadEdit', id: this.id }"
         custom
-        v-slot="{href}"
+        v-slot="{ href }"
       >
         <button
           class="btn-green btn-small"

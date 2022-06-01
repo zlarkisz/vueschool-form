@@ -5,6 +5,14 @@ export default {
     upsert(state[resource], item)
   },
 
+  appendUnsubscribe (state, { unsubscribe }) {
+    state.unsubscribes.push(unsubscribe)
+  },
+
+  clearAllUnsubsribe (state) {
+    state.unsubscribes = []
+  },
+
   appendPostToThread: makeAppendChildToParentMutation({ parent: 'threads', child: 'posts' }),
 
   appendThreadToForum: makeAppendChildToParentMutation({ parent: 'forums', child: 'threads' }),

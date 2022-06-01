@@ -55,7 +55,7 @@ export default {
         },
 
         get contributorsCount () {
-          return thread.contributors.length
+          return thread.contributors?.length || 0
         }
       }
     }
