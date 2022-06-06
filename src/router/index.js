@@ -8,8 +8,6 @@ import Category from '@/pages/Category'
 import Profile from '@/pages/Profile'
 import { createRouter, createWebHistory } from 'vue-router'
 import store from '@/store'
-// import sourceData from '@/data.json'
-// import { findById } from '@/helpers'
 
 const routes = [
   {

@@ -7,7 +7,11 @@
 
 <script>
 export default {
+  name: 'NotFound',
 
+  created () {
+    this.$emit('ready')
+  }
 }
 </script>
 
