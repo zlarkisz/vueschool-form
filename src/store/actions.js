@@ -9,9 +9,10 @@ import {
   serverTimestamp,
   increment,
   updateDoc,
-  onSnapshot
+  onSnapshot,
+  setDoc
 } from 'firebase/firestore'
-import { findById } from '@/helpers'
+import { findById, docToResource } from '@/helpers'
 
 export default {
   async createPost ({ commit, state }, post) {
@@ -104,6 +105,22 @@ export default {
     commit('setItem', { resource: 'threads', item: newThread })
     commit('setItem', { resource: 'posts', item: newPost })
     return newThread
+  },
+
+  async createUser ({ commit }, { email, name, username, avatar = null }) {
+    const db = getFirestore()
+    const registeredAt = serverTimestamp()
+    const usernameLower = username.toLowerCase()
+    email = email.toLowerCase()
+    const user = { avatar, email, name, username, usernameLower, registeredAt }
+    const userRef = doc(collection(db, 'users'))
+
+    await setDoc(userRef, user)
+
+    const newUser = await getDoc(userRef)
+    commit('setItem', { resource: 'users', item: newUser })
+
+    return docToResource(newUser)
   },
 
   updateUser ({ commit }, user) {
