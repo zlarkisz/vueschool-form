@@ -12,6 +12,7 @@ import {
   onSnapshot,
   setDoc
 } from 'firebase/firestore'
+import { createUserWithEmailAndPassword, getAuth } from 'firebase/auth'
 import { findById, docToResource } from '@/helpers'
 
 export default {
@@ -107,13 +108,19 @@ export default {
     return newThread
   },
 
-  async createUser ({ commit }, { email, name, username, avatar = null }) {
+  async registerUserWithEmailAndPassword ({ dispatch }, { avatar = null, email, name, username, password }) {
+    const auth = getAuth()
+    const result = await createUserWithEmailAndPassword(auth, email, password)
+    await dispatch('createUser', { id: result.user.uid, email, name, username, avatar })
+  },
+
+  async createUser ({ commit }, { id, email, name, username, avatar = null }) {
     const db = getFirestore()
     const registeredAt = serverTimestamp()
     const usernameLower = username.toLowerCase()
     email = email.toLowerCase()
     const user = { avatar, email, name, username, usernameLower, registeredAt }
-    const userRef = doc(collection(db, 'users'))
+    const userRef = doc(db, 'users', id)
 
     await setDoc(userRef, user)
 
@@ -141,7 +148,15 @@ export default {
 
   fetchUser: ({ dispatch }, { id }) => dispatch('fetchItem', { id, resource: 'users', emoji: '🙋🏻‍♂️' }),
 
-  fetchAuthUser: ({ dispatch, state }) => dispatch('fetchItem', { id: state.authId, resource: 'users', emoji: '🙋🏻‍♂️' }),
+  fetchAuthUser: ({ dispatch, commit }) => {
+    const auth = getAuth()
+    const userId = auth.currentUser?.uid
+
+    if (!userId) return
+
+    dispatch('fetchItem', { id: userId, resource: 'users', emoji: '🙋🏻‍♂️' })
+    commit('setAuthId', userId)
+  },
 
   // -------------------
   // Fetch All of a Resource
