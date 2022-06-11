@@ -12,7 +12,7 @@ import {
   onSnapshot,
   setDoc
 } from 'firebase/firestore'
-import { createUserWithEmailAndPassword, getAuth } from 'firebase/auth'
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, getAuth, signOut, GoogleAuthProvider, signInWithPopup } from 'firebase/auth'
 import { findById, docToResource } from '@/helpers'
 
 export default {
@@ -114,6 +114,31 @@ export default {
     await dispatch('createUser', { id: result.user.uid, email, name, username, avatar })
   },
 
+  signInWithEmailAndPassword (context, { email, password }) {
+    const auth = getAuth()
+    return signInWithEmailAndPassword(auth, email, password)
+  },
+
+  async signInWithGoogle ({ dispatch }) {
+    const db = getFirestore()
+    const auth = getAuth()
+    const provider = new GoogleAuthProvider()
+    const response = await signInWithPopup(auth, provider)
+    const user = response.user
+    const userRef = doc(db, 'users', user.uid)
+    const userDoc = await getDoc(userRef)
+
+    if (!userDoc.exists()) {
+      return dispatch('createUser', { id: user.uid, name: user.displayName, email: user.email, username: user.email, avatar: user.photoURL })
+    }
+  },
+
+  async signOut ({ commit }) {
+    const auth = getAuth()
+    await signOut(auth)
+    commit('setAuthId', null)
+  },
+
   async createUser ({ commit }, { id, email, name, username, avatar = null }) {
     const db = getFirestore()
     const registeredAt = serverTimestamp()
@@ -154,7 +179,13 @@ export default {
 
     if (!userId) return
 
-    dispatch('fetchItem', { id: userId, resource: 'users', emoji: '🙋🏻‍♂️' })
+    dispatch('fetchItem', { id: userId,
+      resource: 'users',
+      emoji: '🙋🏻‍♂️',
+      handleUnsubscribe: (unsubscribe) => {
+        commit('setAuthUserUnsubscribe', unsubscribe)
+      }
+    })
     commit('setAuthId', userId)
   },
 
@@ -191,7 +222,7 @@ export default {
 
   fetchUsers: ({ dispatch }, { ids }) => dispatch('fetchItems', { ids, resource: 'users', emoji: '🙋🏻‍♂️' }),
 
-  async fetchItem ({ commit }, { id, emoji, resource }) {
+  async fetchItem ({ commit }, { id, emoji, resource, handleUnsubscribe = null }) {
     console.log('🔥', emoji, id)
     const db = getFirestore()
 
@@ -201,7 +232,12 @@ export default {
         commit('setItem', { resource, id, item })
         resolve(item)
       })
-      commit('appendUnsubscribe', { unsubscribe })
+
+      if (handleUnsubscribe) {
+        handleUnsubscribe(unsubscribe)
+      } else {
+        commit('appendUnsubscribe', { unsubscribe })
+      }
     })
   },
 
@@ -212,5 +248,12 @@ export default {
   async unsubscribeAllSnapshots ({ state, commit }) {
     state.unsubscribes.forEach(unsubscribe => unsubscribe())
     commit('clearAllUnsubsribe')
+  },
+
+  async unsubscribeAuthUserSnapshot ({ state, commit }) {
+    if (state.authUserUnsubscribe) {
+      state.authUserUnsubscribe()
+      commit('setAuthUserUnsubscribe', null)
+    }
   }
 }

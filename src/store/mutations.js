@@ -9,6 +9,10 @@ export default {
     state.authId = id
   },
 
+  setAuthUserUnsubscribe (state, unsubscribe) {
+    state.setAuthUserUnsubscribe = unsubscribe
+  },
+
   appendUnsubscribe (state, { unsubscribe }) {
     state.unsubscribes.push(unsubscribe)
   },
