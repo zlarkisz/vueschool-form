@@ -6,7 +6,8 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
-    "db:seed": "firebase firestore:delete --all-collections Yes && node firestoreImport"
+    "db:seed": "firebase firestore:delete --all-collections Yes && node firestoreImport",
+    "//": "in firestore.rules change the timestamp.date and run firebase deploy"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.1.1",
