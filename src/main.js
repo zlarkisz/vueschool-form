@@ -6,18 +6,9 @@ import store from './store'
 import * as firebase from 'firebase/app'
 import firebaseConfig from '@/config/firebase'
 import FontAwesome from '@/plugins/FontAwesome'
-import { getAuth, onAuthStateChanged } from 'firebase/auth'
 
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig)
-const auth = getAuth()
-onAuthStateChanged(auth, user => {
-  store.dispatch('unsubscribeAuthUserSnapshot')
-
-  if (user) {
-    store.dispatch('fetchAuthUser')
-  }
-})
 
 const forumApp = createApp(App)
 

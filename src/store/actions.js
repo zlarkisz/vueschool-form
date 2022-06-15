@@ -12,10 +12,40 @@ import {
   onSnapshot,
   setDoc
 } from 'firebase/firestore'
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, getAuth, signOut, GoogleAuthProvider, signInWithPopup } from 'firebase/auth'
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  getAuth,
+  signOut,
+  GoogleAuthProvider,
+  signInWithPopup,
+  onAuthStateChanged
+} from 'firebase/auth'
 import { findById, docToResource } from '@/helpers'
 
 export default {
+  initAuthentication ({ dispatch, commit, state }) {
+    if (state.authObservereUnsubscribe) state.authObservereUnsubscribe()
+
+    return new Promise(resolve => {
+      const auth = getAuth()
+
+      const unsubscribe = onAuthStateChanged(auth, async (user) => {
+        console.log('👣 the user has changed')
+        dispatch('unsubscribeAuthUserSnapshot')
+
+        if (user) {
+          await dispatch('fetchAuthUser')
+          resolve(user)
+        } else {
+          resolve(null)
+        }
+      })
+
+      commit('setAuthObservereUnsubscribe', unsubscribe)
+    })
+  },
+
   async createPost ({ commit, state }, post) {
     const db = getFirestore()
     const batch = writeBatch(db)
@@ -173,13 +203,13 @@ export default {
 
   fetchUser: ({ dispatch }, { id }) => dispatch('fetchItem', { id, resource: 'users', emoji: '🙋🏻‍♂️' }),
 
-  fetchAuthUser: ({ dispatch, commit }) => {
+  fetchAuthUser: async ({ dispatch, commit }) => {
     const auth = getAuth()
     const userId = auth.currentUser?.uid
 
     if (!userId) return
 
-    dispatch('fetchItem', { id: userId,
+    await dispatch('fetchItem', { id: userId,
       resource: 'users',
       emoji: '🙋🏻‍♂️',
       handleUnsubscribe: (unsubscribe) => {
