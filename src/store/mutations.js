@@ -13,6 +13,10 @@ export default {
     state.setAuthUserUnsubscribe = unsubscribe
   },
 
+  setAuthObservereUnsubscribe (state, unsubscribe) {
+    state.authObservereUnsubscribe = unsubscribe
+  },
+
   appendUnsubscribe (state, { unsubscribe }) {
     state.unsubscribes.push(unsubscribe)
   },
