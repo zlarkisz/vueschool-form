@@ -10,7 +10,9 @@ import {
   increment,
   updateDoc,
   onSnapshot,
-  setDoc
+  setDoc,
+  query,
+  where
 } from 'firebase/firestore'
 import {
   createUserWithEmailAndPassword,
@@ -198,7 +200,20 @@ export default {
     return docToResource(newUser)
   },
 
-  updateUser ({ commit }, user) {
+  async updateUser ({ commit }, user) {
+    const db = getFirestore()
+    const updates = {
+      avatar: user.avatar || null,
+      username: user.username || null,
+      name: user.name || null,
+      bio: user.bio || null,
+      website: user.website || null,
+      email: user.email || null,
+      location: user.location || null
+    }
+    const userRef = doc(db, 'users', user.id)
+
+    await updateDoc(userRef, updates)
     commit('setItem', { resource: 'users', item: user })
   },
 
@@ -230,6 +245,16 @@ export default {
       }
     })
     commit('setAuthId', userId)
+  },
+
+  async fetchAuthUsersPosts ({ commit, state }) {
+    const db = getFirestore()
+    const posts = query(collection(db, 'posts'), where('userId', '==', state.authId))
+    const postsSnapshot = await getDocs(posts)
+
+    postsSnapshot.forEach(doc => {
+      commit('setItem', { resource: 'posts', item: doc.data() })
+    })
   },
 
   // -------------------
