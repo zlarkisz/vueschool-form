@@ -10,12 +10,14 @@ import {
 } from 'firebase/firestore'
 
 export default {
+  namespaced: true,
+
   state: {
     items: []
   },
 
   getters: {
-    thread: state => {
+    thread: (state, getters, rootState) => {
       return (id) => {
         const thread = findById(state.items, id)
 
@@ -25,7 +27,7 @@ export default {
           ...thread,
 
           get author () {
-            return findById(state.users, thread.userId)
+            return findById(rootState.users.items, thread.userId)
           },
 
           get repliesCount () {
@@ -41,11 +43,11 @@ export default {
   },
 
   actions: {
-    async createThread ({ commit, state, dispatch }, { text, title, forumId }) {
+    async createThread ({ commit, state, dispatch, rootState }, { text, title, forumId }) {
       const db = getFirestore()
       const batch = writeBatch(db)
       const threadRef = doc(collection(db, 'threads'))
-      const userId = state.authId
+      const userId = rootState.auth.authId
       const publishedAt = serverTimestamp()
       const thread = {
         forumId,
@@ -69,19 +71,25 @@ export default {
 
       const newThread = await getDoc(threadRef)
 
-      commit('setItem', { resource: 'threads', item: { ...newThread.data(), id: newThread.id } })
-      commit('appendThreadToUser', { parentId: userId, childId: threadRef.id })
-      commit('appendThreadToForum', { parentId: forumId, childId: threadRef.id })
-      await dispatch('createPost', { text, threadId: threadRef.id })
+      commit('setItem',
+        {
+          resource: 'threads',
+          item: { ...newThread.data(), id: newThread.id }
+        },
+        { root: true }
+      )
+      commit('users/appendThreadToUser', { parentId: userId, childId: threadRef.id }, { root: true })
+      commit('forums/appendThreadToForum', { parentId: forumId, childId: threadRef.id }, { root: true })
+      await dispatch('posts/createPost', { text, threadId: threadRef.id }, { root: true })
 
       return findById(state.items, threadRef.id)
     },
 
-    async updateThread ({ commit, state }, { title, text, id }) {
+    async updateThread ({ commit, state, rootState }, { title, text, id }) {
       const db = getFirestore()
       const batch = writeBatch(db)
       const thread = findById(state.items, id)
-      const post = findById(state.posts, thread.posts[0])
+      const post = findById(rootState.posts.items, thread.posts[0])
       let newThread = { ...thread, title }
       let newPost = { ...post, text }
       const threadRef = doc(db, 'threads', id)
@@ -94,15 +102,15 @@ export default {
       newThread = await getDoc(threadRef)
       newPost = await getDoc(postRef)
 
-      commit('setItem', { resource: 'threads', item: newThread })
-      commit('setItem', { resource: 'posts', item: newPost })
+      commit('setItem', { resource: 'threads', item: newThread }, { root: true })
+      commit('setItem', { resource: 'posts', item: newPost }, { root: true })
 
       return docToResource(newThread)
     },
 
-    fetchThread: ({ dispatch }, { id }) => dispatch('fetchItem', { id, resource: 'threads', emoji: '📄' }),
+    fetchThread: ({ dispatch }, { id }) => dispatch('fetchItem', { id, resource: 'threads', emoji: '📄' }, { root: true }),
 
-    fetchThreads: ({ dispatch }, { ids }) => dispatch('fetchItems', { ids, resource: 'threads', emoji: '📄' })
+    fetchThreads: ({ dispatch }, { ids }) => dispatch('fetchItems', { ids, resource: 'threads', emoji: '📄' }, { root: true })
   },
 
   mutations: {

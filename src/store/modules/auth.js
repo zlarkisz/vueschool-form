@@ -18,6 +18,8 @@ import {
 } from 'firebase/auth'
 
 export default {
+  namespaced: true,
+
   state: {
     authId: null,
     authUserUnsubscribe: null,
@@ -25,8 +27,8 @@ export default {
   },
 
   getters: {
-    authUser: (state, getters) => {
-      return getters.user(state.authId)
+    authUser: (state, getters, rootState, rootGetters) => {
+      return rootGetters['users/user'](state.authId)
     }
   },
 
@@ -56,7 +58,7 @@ export default {
     async registerUserWithEmailAndPassword ({ dispatch }, { avatar = null, email, name, username, password }) {
       const auth = getAuth()
       const result = await createUserWithEmailAndPassword(auth, email, password)
-      await dispatch('createUser', { id: result.user.uid, email, name, username, avatar })
+      await dispatch('users/createUser', { id: result.user.uid, email, name, username, avatar }, { root: true })
     },
 
     signInWithEmailAndPassword (context, { email, password }) {
@@ -74,13 +76,16 @@ export default {
       const userDoc = await getDoc(userRef)
 
       if (!userDoc.exists()) {
-        return dispatch('createUser', {
-          id: user.uid,
-          name: user.displayName,
-          email: user.email,
-          username: user.email,
-          avatar: user.photoURL
-        })
+        return dispatch('users/createUser',
+          {
+            id: user.uid,
+            name: user.displayName,
+            email: user.email,
+            username: user.email,
+            avatar: user.photoURL
+          },
+          { root: true }
+        )
       }
     },
 
@@ -96,13 +101,16 @@ export default {
 
       if (!userId) return
 
-      await dispatch('fetchItem', { id: userId,
-        resource: 'users',
-        emoji: '🙋🏻‍♂️',
-        handleUnsubscribe: (unsubscribe) => {
-          commit('setAuthUserUnsubscribe', unsubscribe)
-        }
-      })
+      await dispatch('fetchItem',
+        { id: userId,
+          resource: 'users',
+          emoji: '🙋🏻‍♂️',
+          handleUnsubscribe: (unsubscribe) => {
+            commit('setAuthUserUnsubscribe', unsubscribe)
+          }
+        },
+        { root: true }
+      )
       commit('setAuthId', userId)
     },
 
@@ -112,7 +120,7 @@ export default {
       const postsSnapshot = await getDocs(posts)
 
       postsSnapshot.forEach(doc => {
-        commit('setItem', { resource: 'posts', item: doc.data() })
+        commit('setItem', { resource: 'posts', item: doc.data() }, { root: true })
       })
     },
 

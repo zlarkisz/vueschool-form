@@ -27,7 +27,7 @@
           <p v-else>{{ post.text }}</p>
         </div>
         <a
-          v-if="post.userId === $store.state.authId"
+          v-if="post.userId === $store.state.auth.authId"
           href="#"
           style="margin-left: auto; padding-left:10px;"
           class="link-unstyled"
@@ -72,15 +72,15 @@ export default {
 
   computed: {
     users () {
-      return this.$store.state.users
+      return this.$store.state.users.items
     }
   },
 
   methods: {
-    ...mapActions(['updatePost']),
+    ...mapActions('posts', ['updatePost']),
 
     userById (userId) {
-      return this.$store.getters.user(userId)
+      return this.$store.getters['users/user'](userId)
     },
 
     toggleEditMode (id) {
