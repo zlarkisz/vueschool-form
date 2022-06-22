@@ -1,6 +1,8 @@
 import { makeAppendChildToParentMutation } from '@/helpers'
 
 export default {
+  namespaced: true,
+
   state: {
     items: []
   },
@@ -8,9 +10,15 @@ export default {
   getters: {},
 
   actions: {
-    fetchForum: ({ dispatch }, { id }) => dispatch('fetchItem', { id, resource: 'forums', emoji: '🏁' }),
+    fetchForum: ({ dispatch }, { id }) => dispatch('fetchItem',
+      { id, resource: 'forums', emoji: '🏁' },
+      { root: true }
+    ),
 
-    fetchForums: ({ dispatch }, { ids }) => dispatch('fetchItems', { ids, resource: 'forums', emoji: '🏁' })
+    fetchForums: ({ dispatch }, { ids }) => dispatch('fetchItems',
+      { ids, resource: 'forums', emoji: '🏁' },
+      { root: true }
+    )
   },
 
   mutations: {

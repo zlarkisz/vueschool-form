@@ -64,18 +64,18 @@ export default {
   },
 
   computed: {
-    ...mapGetters(['authUser']),
+    ...mapGetters('auth', ['authUser']),
 
     threads () {
-      return this.$store.state.threads
+      return this.$store.state.threads.items
     },
 
     posts () {
-      return this.$store.state.posts
+      return this.$store.state.posts.items
     },
 
     thread () {
-      return this.$store.getters.thread(this.id)
+      return this.$store.getters['threads/thread'](this.id)
     },
 
     threadPosts () {
@@ -84,13 +84,9 @@ export default {
   },
 
   methods: {
-    ...mapActions([
-      'createPost',
-      'fetchThread',
-      'fetchPost',
-      'fetchUsers',
-      'fetchPosts'
-    ]),
+    ...mapActions('posts', ['createPost', 'fetchPosts']),
+    ...mapActions('threads', ['fetchThread']),
+    ...mapActions('users', ['fetchUsers']),
 
     addPost (eventData) {
       const post = {

@@ -13,12 +13,14 @@ import {
 } from 'firebase/firestore'
 
 export default {
+  namespaced: true,
+
   state: {
     items: []
   },
 
   getters: {
-    user: state => {
+    user: (state, getters, rootState) => {
       return id => {
         const user = findById(state.items, id)
 
@@ -29,7 +31,7 @@ export default {
 
           // authUser.posts
           get posts () {
-            return state.posts.filter(post => post.userId === user.id)
+            return rootState.posts.items.filter(post => post.userId === user.id)
           },
 
           // authUser.postsCount
@@ -39,7 +41,7 @@ export default {
 
           // authUser.threads
           get threads () {
-            return state.threads.filter(thread => thread.userId === user.id)
+            return rootState.threads.items.filter(thread => thread.userId === user.id)
           },
 
           // authUser.threadsCount
@@ -63,7 +65,7 @@ export default {
       await setDoc(userRef, user)
 
       const newUser = await getDoc(userRef)
-      commit('setItem', { resource: 'users', item: newUser })
+      commit('setItem', { resource: 'users', item: newUser }, { root: true })
 
       return docToResource(newUser)
     },
@@ -82,12 +84,18 @@ export default {
       const userRef = doc(db, 'users', user.id)
 
       await updateDoc(userRef, updates)
-      commit('setItem', { resource: 'users', item: user })
+      commit('setItem', { resource: 'users', item: user }, { root: true })
     },
 
-    fetchUser: ({ dispatch }, { id }) => dispatch('fetchItem', { id, resource: 'users', emoji: '🙋🏻‍♂️' }),
+    fetchUser: ({ dispatch }, { id }) => dispatch('fetchItem',
+      { id, resource: 'users', emoji: '🙋🏻‍♂️' },
+      { root: true }
+    ),
 
-    fetchUsers: ({ dispatch }, { ids }) => dispatch('fetchItems', { ids, resource: 'users', emoji: '🙋🏻‍♂️' })
+    fetchUsers: ({ dispatch }, { ids }) => dispatch('fetchItems',
+      { ids, resource: 'users', emoji: '🙋🏻‍♂️' },
+      { root: true }
+    )
   },
 
   mutations: {

@@ -32,15 +32,17 @@ export default {
 
   computed: {
     category () {
-      return findById(this.$store.state.categories, this.id) || {}
+      return findById(this.$store.state.categories.items, this.id) || {}
     }
   },
 
   methods: {
-    ...mapActions(['fetchForums', 'fetchCategory']),
+    ...mapActions('forums', ['fetchForums']),
+
+    ...mapActions('categories', ['fetchCategory']),
 
     getForumsForCategory (category) {
-      return this.$store.state.forums.filter(forum => forum.categoryId === category.id)
+      return this.$store.state.forums.items.filter(forum => forum.categoryId === category.id)
     }
   },
 

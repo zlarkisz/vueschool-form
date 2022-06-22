@@ -46,17 +46,19 @@ export default {
 
   computed: {
     forum () {
-      return findById(this.$store.state.forums, this.id) || {}
+      return findById(this.$store.state.forums.items, this.id)
     },
 
     threads () {
       if (!this.forum && !this.forum.threads) return []
-      return this.forum.threads?.map(threadId => this.$store.getters.thread(threadId))
+      return this.forum.threads?.map(threadId => this.$store.getters['threads/thread'](threadId))
     }
   },
 
   methods: {
-    ...mapActions(['fetchThreads', 'fetchForum', 'fetchUsers'])
+    ...mapActions('threads', ['fetchThreads']),
+    ...mapActions('forums', ['fetchForum']),
+    ...mapActions('users', ['fetchUsers'])
   },
 
   async created  () {

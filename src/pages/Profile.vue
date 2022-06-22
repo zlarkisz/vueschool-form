@@ -47,11 +47,11 @@ export default {
   },
 
   computed: {
-    ...mapGetters({ user: 'authUser' })
+    ...mapGetters('auth', { user: 'authUser' })
   },
 
   methods: {
-    ...mapActions(['fetchAuthUsersPosts'])
+    ...mapActions('auth', ['fetchAuthUsersPosts'])
   },
 
   async created () {

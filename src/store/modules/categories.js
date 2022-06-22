@@ -5,6 +5,8 @@ import {
 } from 'firebase/firestore'
 
 export default {
+  namespaced: true,
+
   state: {
     items: []
   },
@@ -12,9 +14,15 @@ export default {
   getters: {},
 
   actions: {
-    fetchCategory: ({ dispatch }, { id }) => dispatch('fetchItem', { id, resource: 'categories', emoji: '🏷' }),
+    fetchCategory: ({ dispatch }, { id }) => dispatch('fetchItem',
+      { id, resource: 'categories', emoji: '🏷' },
+      { root: true }
+    ),
 
-    fetchCategories: ({ dispatch }, { ids }) => dispatch('fetchItems', { ids, resource: 'categories', emoji: '🏷' }),
+    fetchCategories: ({ dispatch }, { ids }) => dispatch('fetchItems',
+      { ids, resource: 'categories', emoji: '🏷' },
+      { root: true }
+    ),
 
     fetchAllCategories ({ commit }) {
       console.log('🔥', '🏷', 'all')
@@ -26,7 +34,7 @@ export default {
           .then(snapshot => {
             const categories = snapshot.docs.map(doc => {
               const item = { id: doc.id, ...doc.data() }
-              commit('setItem', { resource: 'categories', item })
+              commit('setItem', { resource: 'categories', item }, { root: true })
               return item
             })
 
