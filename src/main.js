@@ -7,6 +7,7 @@ import * as firebase from 'firebase/app'
 import firebaseConfig from '@/config/firebase'
 import FontAwesome from '@/plugins/FontAwesome'
 import ClickOutsideDirective from '@/plugins/ClickOutsideDirective'
+import PageScrollDirective from '@/plugins/PageScrollDirective'
 
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig)
@@ -17,5 +18,6 @@ forumApp.use(store)
 forumApp.use(router)
 forumApp.use(FontAwesome)
 forumApp.use(ClickOutsideDirective)
+forumApp.use(PageScrollDirective)
 forumApp.component('AppDate', AppDate)
 forumApp.mount('#app')
