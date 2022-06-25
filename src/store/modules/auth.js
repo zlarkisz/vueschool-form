@@ -5,7 +5,10 @@ import {
   query,
   collection,
   where,
-  getDocs
+  getDocs,
+  orderBy,
+  limit,
+  startAfter
 } from 'firebase/firestore'
 import {
   createUserWithEmailAndPassword,
@@ -114,13 +117,31 @@ export default {
       commit('setAuthId', userId)
     },
 
-    async fetchAuthUsersPosts ({ commit, state }) {
+    async fetchAuthUsersPosts ({ commit, state }, { start }) {
       const db = getFirestore()
-      const posts = query(collection(db, 'posts'), where('userId', '==', state.authId))
+      let posts = query(
+        collection(db, 'posts'),
+        where('userId', '==', state.authId),
+        orderBy('publishedAt', 'desc'),
+        limit(3)
+      )
+
+      if (start) {
+        const postsDoc = await getDoc(doc(db, 'posts', start.id))
+
+        posts = query(
+          collection(db, 'posts'),
+          where('userId', '==', state.authId),
+          orderBy('publishedAt', 'desc'),
+          startAfter(postsDoc),
+          limit(3)
+        )
+      }
+
       const postsSnapshot = await getDocs(posts)
 
       postsSnapshot.forEach(doc => {
-        commit('setItem', { resource: 'posts', item: doc.data() }, { root: true })
+        commit('setItem', { resource: 'posts', item: { ...doc.data(), id: doc.id } }, { root: true })
       })
     },
 

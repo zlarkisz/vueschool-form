@@ -1,6 +1,5 @@
 <template>
   <div class="container" style="width: 100%;">
-    <h1>My Profile</h1>
     <div class="flex-grid">
       <div class="col-3 push-top">
         <UserProfileCard v-if="!edit" :user="user" />
@@ -16,6 +15,11 @@
         <hr />
 
         <PostList :posts="user.posts" />
+
+        <AppInfiniteScroll
+          @load="fetchAuthUsersPosts({ start: lastPostFetched })"
+          :done="user.posts.length === user.postsCount"
+        />
       </div>
     </div>
   </div>
@@ -25,7 +29,10 @@
 import PostList from '@/components/PostList'
 import UserProfileCard from '@/components/UserProfileCard'
 import UserProfileCardEditor from '@/components/UserProfileCardEditor'
+import AppInfiniteScroll from '@/components/AppInfiniteScroll'
+
 import { mapGetters, mapActions } from 'vuex'
+
 import asyncDataStatus from '@/mixins/asyncDataStatus'
 
 export default {
@@ -36,7 +43,8 @@ export default {
   components: {
     PostList,
     UserProfileCard,
-    UserProfileCardEditor
+    UserProfileCardEditor,
+    AppInfiniteScroll
   },
 
   props: {
@@ -47,7 +55,13 @@ export default {
   },
 
   computed: {
-    ...mapGetters('auth', { user: 'authUser' })
+    ...mapGetters('auth', { user: 'authUser' }),
+
+    lastPostFetched () {
+      if (this.user.posts.length === 0) return null
+
+      return this.user.posts[this.user.posts.length - 1]
+    }
   },
 
   methods: {
@@ -55,7 +69,8 @@ export default {
   },
 
   async created () {
-    await this.fetchAuthUsersPosts()
+    await this.fetchAuthUsersPosts({ start: this.lastPostFetched })
+
     this.asyncDataStatus_fetched()
   }
 }
