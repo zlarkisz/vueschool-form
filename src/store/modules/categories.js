@@ -3,6 +3,7 @@ import {
   collection,
   getDocs
 } from 'firebase/firestore'
+import { makeFetchItemAction, makeFetchItemsAction } from '@/helpers'
 
 export default {
   namespaced: true,
@@ -14,15 +15,9 @@ export default {
   getters: {},
 
   actions: {
-    fetchCategory: ({ dispatch }, { id }) => dispatch('fetchItem',
-      { id, resource: 'categories', emoji: '🏷' },
-      { root: true }
-    ),
+    fetchCategory: makeFetchItemAction({ emoji: '🏷', resource: 'categories' }),
 
-    fetchCategories: ({ dispatch }, { ids }) => dispatch('fetchItems',
-      { ids, resource: 'categories', emoji: '🏷' },
-      { root: true }
-    ),
+    fetchCategories: makeFetchItemsAction({ emoji: '🏷', resource: 'categories' }),
 
     fetchAllCategories ({ commit }) {
       console.log('🔥', '🏷', 'all')

@@ -1,4 +1,11 @@
-import { findById, docToResource, makeAppendChildToParentMutation } from '@/helpers'
+import {
+  findById,
+  docToResource,
+  makeAppendChildToParentMutation,
+  makeFetchItemsAction,
+  makeFetchItemAction
+} from '@/helpers'
+
 import {
   getFirestore,
   writeBatch,
@@ -109,9 +116,9 @@ export default {
       return docToResource(newThread)
     },
 
-    fetchThread: ({ dispatch }, { id }) => dispatch('fetchItem', { id, resource: 'threads', emoji: '📄' }, { root: true }),
+    fetchThread: makeFetchItemAction({ emoji: '📄', resource: 'threads' }),
 
-    fetchThreads: ({ dispatch }, { ids }) => dispatch('fetchItems', { ids, resource: 'threads', emoji: '📄' }, { root: true }),
+    fetchThreads: makeFetchItemsAction({ emoji: '📄', resource: 'threads' }),
 
     fetchThreadsByPage: ({ commit, dispatch }, { ids, page, perPage = 3 }) => {
       commit('clearThreads')

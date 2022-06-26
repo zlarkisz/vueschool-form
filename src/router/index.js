@@ -49,7 +49,7 @@ const routes = [
     component: ThreadShow,
     props: true,
     async beforeEnter (to, from, next) {
-      await store.dispatch('threads/fetchThread', { id: to.params.id })
+      await store.dispatch('threads/fetchThread', { id: to.params.id, once: true })
       // check if thread exists
       const treadExists = findById(store.state.threads.items, to.params.id)
       // if exist continue
