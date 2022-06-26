@@ -1,4 +1,4 @@
-import { makeAppendChildToParentMutation } from '@/helpers'
+import { makeAppendChildToParentMutation, makeFetchItemAction, makeFetchItemsAction } from '@/helpers'
 
 export default {
   namespaced: true,
@@ -10,15 +10,8 @@ export default {
   getters: {},
 
   actions: {
-    fetchForum: ({ dispatch }, { id }) => dispatch('fetchItem',
-      { id, resource: 'forums', emoji: '🏁' },
-      { root: true }
-    ),
-
-    fetchForums: ({ dispatch }, { ids }) => dispatch('fetchItems',
-      { ids, resource: 'forums', emoji: '🏁' },
-      { root: true }
-    )
+    fetchForum: makeFetchItemAction({ emoji: '🏁', resource: 'forums' }),
+    fetchForums: makeFetchItemsAction({ emoji: '🏁', resource: 'forums' })
   },
 
   mutations: {

@@ -9,6 +9,7 @@ import {
   getDoc,
   updateDoc
 } from 'firebase/firestore'
+import { makeFetchItemAction, makeFetchItemsAction } from '@/helpers'
 
 export default {
   namespaced: true,
@@ -75,15 +76,8 @@ export default {
       commit('setItem', { resource: 'posts', item: updatedPost }, { root: true })
     },
 
-    fetchPost: ({ dispatch }, { id }) => dispatch('fetchItem',
-      { id, resource: 'posts', emoji: '📜' },
-      { root: true }
-    ),
-
-    fetchPosts: ({ dispatch }, { ids }) => dispatch('fetchItems',
-      { ids, resource: 'posts', emoji: '📜' },
-      { root: true }
-    )
+    fetchPost: makeFetchItemAction({ emoji: '💬', resource: 'posts' }),
+    fetchPosts: makeFetchItemsAction({ emoji: '💬', resource: 'posts' })
   },
 
   mutations: {}

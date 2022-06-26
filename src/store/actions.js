@@ -5,12 +5,23 @@ import {
 } from 'firebase/firestore'
 
 export default {
-  async fetchItem ({ commit }, { id, emoji, resource, handleUnsubscribe = null }) {
+  async fetchItem (
+    { commit },
+    {
+      id,
+      emoji,
+      resource,
+      handleUnsubscribe = null,
+      onsce = false
+    }
+  ) {
     console.log('🔥', emoji, id)
     const db = getFirestore()
 
     return new Promise(resolve => {
       const unsubscribe = onSnapshot(doc(db, resource, id), doc => {
+        if (onsce) unsubscribe()
+
         if (doc.exists()) {
           const item = { ...doc.data(), id: doc.id }
           commit('setItem', { resource, id, item })

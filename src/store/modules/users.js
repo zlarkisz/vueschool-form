@@ -1,7 +1,9 @@
 import {
   findById,
   docToResource,
-  makeAppendChildToParentMutation
+  makeAppendChildToParentMutation,
+  makeFetchItemAction,
+  makeFetchItemsAction
 } from '@/helpers'
 import {
   getFirestore,
@@ -87,15 +89,8 @@ export default {
       commit('setItem', { resource: 'users', item: user }, { root: true })
     },
 
-    fetchUser: ({ dispatch }, { id }) => dispatch('fetchItem',
-      { id, resource: 'users', emoji: '🙋🏻‍♂️' },
-      { root: true }
-    ),
-
-    fetchUsers: ({ dispatch }, { ids }) => dispatch('fetchItems',
-      { ids, resource: 'users', emoji: '🙋🏻‍♂️' },
-      { root: true }
-    )
+    fetchUser: makeFetchItemAction({ emoji: '🙋', resource: 'users' }),
+    fetchUsers: makeFetchItemsAction({ resource: 'users', emoji: '🙋' })
   },
 
   mutations: {
