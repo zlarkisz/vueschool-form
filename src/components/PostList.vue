@@ -6,14 +6,14 @@
       class="post"
     >
       <div v-show="userById(post.userId)" class="user-info">
-        <a href="#" class="user-name">{{ userById(post.userId).name }}</a>
+        <a href="#" class="user-name">{{ userById(post.userId)?.name }}</a>
 
         <a href="#">
-          <img class="avatar-large" :src="userById(post.userId).avatar" alt="">
+          <img class="avatar-large" :src="userById(post.userId)?.avatar" alt="">
         </a>
 
-        <p class="desktop-only text-small">{{ userById(post.userId).postsCount }} posts</p>
-        <p class="desktop-only text-small">{{ userById(post.userId).threadsCount }} threads</p>
+        <p class="desktop-only text-small">{{ userById(post.userId)?.postsCount }} posts</p>
+        <p class="desktop-only text-small">{{ userById(post.userId)?.threadsCount }} threads</p>
       </div>
 
       <div class="post-content">
