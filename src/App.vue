@@ -10,6 +10,8 @@
 
     <AppSpinner v-show="!showPage" />
   </div>
+
+  <AppNotifications />
 </template>
 
 <script>
@@ -17,13 +19,15 @@ import { mapActions } from 'vuex'
 import NProgress from 'nprogress'
 import TheNavbar from '@/components/TheNavbar.vue'
 import AppSpinner from '@/components/AppSpinner.vue'
+import AppNotifications from '@/components/AppNotifications.vue'
 
 export default {
   name: 'App',
 
   components: {
     TheNavbar,
-    AppSpinner
+    AppSpinner,
+    AppNotifications
   },
 
   data () {

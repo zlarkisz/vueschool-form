@@ -1,3 +1,4 @@
+import { findById } from '@/helpers'
 import {
   getFirestore,
   doc,
@@ -6,13 +7,17 @@ import {
 
 export default {
   async fetchItem (
-    { commit },
+    {
+      commit,
+      state
+    },
     {
       id,
       emoji,
       resource,
       handleUnsubscribe = null,
-      onsce = false
+      onsce = false,
+      onSnapshotFunction = null
     }
   ) {
     console.log('🔥', emoji, id)
@@ -24,7 +29,17 @@ export default {
 
         if (doc.exists()) {
           const item = { ...doc.data(), id: doc.id }
-          commit('setItem', { resource, id, item })
+          let previousItem = findById(state[resource].items, id)
+          previousItem = previousItem ? { ...previousItem } : null
+
+          commit('setItem', { resource, item })
+
+          if (typeof onSnapshotFunction === 'function') {
+            const isLocal = doc.metadata.hasPendingWrites
+
+            onSnapshotFunction({ item: { ...item }, previousItem, isLocal })
+          }
+
           resolve(item)
         } else {
           resolve(null)
@@ -39,8 +54,16 @@ export default {
     })
   },
 
-  fetchItems ({ dispatch }, { ids, resource, emoji }) {
-    return Promise.all(ids?.map(id => dispatch('fetchItem', { id, resource, emoji })))
+  fetchItems (
+    { dispatch },
+    {
+      ids,
+      resource,
+      emoji,
+      onSnapshotFunction = null
+    }
+  ) {
+    return Promise.all(ids?.map(id => dispatch('fetchItem', { id, resource, emoji, onSnapshotFunction })))
   },
 
   async unsubscribeAllSnapshots ({ state, commit }) {
