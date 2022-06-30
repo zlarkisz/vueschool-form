@@ -65,14 +65,25 @@ export default {
       const auth = getAuth()
       const result = await createUserWithEmailAndPassword(auth, email, password)
 
-      if (avatar) {
-        const storage = getStorage()
-        const storageRef = ref(storage, `uploads/${result.user.uid}/images/${Date.now()}-${avatar.name}`)
-        const uploadTask = uploadBytesResumable(storageRef, avatar)
+      avatar = await dispatch('uploadAvatar', { authId: result.user.uid, file: avatar })
 
+      await dispatch('users/createUser', { id: result.user.uid, email, name, username, avatar }, { root: true })
+    },
+
+    async uploadAvatar ({ state }, { authId, file }) {
+      if (!file) return null
+
+      authId = authId ?? state.authId
+
+      let url
+      const storage = getStorage()
+      const storageRef = ref(storage, `uploads/${authId}/images/${Date.now()}-${file.name}`)
+      const uploadTask = uploadBytesResumable(storageRef, file)
+
+      return new Promise(resolve => {
         uploadTask.on('state_changed',
           (snapshot) => {
-          // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
+            // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
             const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100
             console.log('Upload is ' + progress + '% done')
             switch (snapshot.state) {
@@ -85,35 +96,33 @@ export default {
             }
           },
           (error) => {
-          // A full list of error codes is available at
-          // https://firebase.google.com/docs/storage/web/handle-errors
+            // A full list of error codes is available at
+            // https://firebase.google.com/docs/storage/web/handle-errors
             switch (error.code) {
               case 'storage/unauthorized':
-              // User doesn't have permission to access the object
+                // User doesn't have permission to access the object
                 break
               case 'storage/canceled':
-              // User canceled the upload
+                // User canceled the upload
                 break
 
                 // ...
 
               case 'storage/unknown':
-              // Unknown error occurred, inspect error.serverResponse
+                // Unknown error occurred, inspect error.serverResponse
                 break
             }
           },
           () => {
-          // Upload completed successfully, now we can get the download URL
-            getDownloadURL(uploadTask.snapshot.ref).then(async (downloadURL) => {
+            // Upload completed successfully, now we can get the download URL
+            getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
               console.log('File available at', downloadURL)
-              avatar = downloadURL
-              await dispatch('users/createUser', { id: result.user.uid, email, name, username, avatar }, { root: true })
+              url = downloadURL
+              resolve(url)
             })
           }
         )
-      } else {
-        await dispatch('users/createUser', { id: result.user.uid, email, name, username, avatar }, { root: true })
-      }
+      })
     },
 
     signInWithEmailAndPassword (context, { email, password }) {
