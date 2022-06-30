@@ -20,7 +20,7 @@
             {{ thread.repliesCount }} replies
           </p>
 
-          <img class="avatar-medium" :src="userById(thread.userId).avatar" alt="">
+          <AppAvatarImage class="avatar-medium" :src="userById(thread.userId).avatar" />
 
           <div>
             <p class="text-xsmall">
@@ -39,8 +39,13 @@
 
 <script>
 import { findById } from '@/helpers'
+import AppAvatarImage from '@/components/AppAvatarImage.vue'
 
 export default {
+  components: {
+    AppAvatarImage
+  },
+
   props: {
     threads: {
       type: Array,

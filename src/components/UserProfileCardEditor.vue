@@ -3,7 +3,7 @@
     <form @submit.prevent="save">
       <p class="text-center avatar-edit">
         <label for="avatar">
-          <img
+          <AppAvatarImage
             :src="activeUser.avatar"
             :alt="`${user.name} profile picture`"
             class="avatar-xlarge img-update"
@@ -98,12 +98,14 @@
 <script>
 import { mapActions } from 'vuex'
 import AppSpinner from '@/components/AppSpinner.vue'
+import AppAvatarImage from '@/components/AppAvatarImage.vue'
 
 export default {
   name: 'UserProfileCardEditor',
 
   components: {
-    AppSpinner
+    AppSpinner,
+    AppAvatarImage
   },
 
   props: {
