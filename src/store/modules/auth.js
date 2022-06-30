@@ -22,6 +22,7 @@ import {
   signInWithPopup,
   onAuthStateChanged
 } from 'firebase/auth'
+import useNotifications from '@/composables/useNotification'
 
 export default {
   namespaced: true,
@@ -80,7 +81,7 @@ export default {
       const storageRef = ref(storage, `uploads/${authId}/images/${Date.now()}-${file.name}`)
       const uploadTask = uploadBytesResumable(storageRef, file)
 
-      return new Promise(resolve => {
+      return new Promise((resolve, reject) => {
         uploadTask.on('state_changed',
           (snapshot) => {
             // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
@@ -98,6 +99,9 @@ export default {
           (error) => {
             // A full list of error codes is available at
             // https://firebase.google.com/docs/storage/web/handle-errors
+            const { addNotification } = useNotifications()
+            addNotification({ message: 'Error uploading avatar image', type: 'error' })
+            reject(error.code)
             switch (error.code) {
               case 'storage/unauthorized':
                 // User doesn't have permission to access the object
