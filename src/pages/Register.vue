@@ -1,27 +1,63 @@
 <template>
   <div class="flex-grid justify-center">
     <div class="col-2">
-      <form @submit.prevent="register" class="card card-form">
+      <VeeForm
+        @submit="register"
+        class="card card-form"
+      >
         <h1 class="text-center">Register</h1>
 
         <div class="form-group">
           <label for="name">Full Name</label>
-          <input v-model="form.name" id="name" type="text" class="form-input" />
+          <VeeField
+            v-model="form.name"
+            name="name"
+            id="name"
+            type="text"
+            class="form-input"
+            rules="required"
+          />
+          <VeeErrorMessage name="name" class="form-error" />
         </div>
 
         <div class="form-group">
           <label for="username">Username</label>
-          <input v-model="form.username" id="username" type="text" class="form-input" />
+          <VeeField
+            v-model="form.username"
+            name="username"
+            id="username"
+            type="text"
+            class="form-input"
+            rules="required"
+          />
+          <VeeErrorMessage name="username" class="form-error" />
         </div>
 
         <div class="form-group">
           <label for="email">Email</label>
-          <input v-model="form.email" id="email" type="email" class="form-input" />
+          <VeeField
+            v-model="form.email"
+            name="email"
+            id="email"
+            type="email"
+            class="form-input"
+            rules="required|email"
+          />
+          <VeeErrorMessage name="email" class="form-error" />
         </div>
 
         <div class="form-group">
           <label for="password">Password</label>
-          <input v-model="form.password" id="password" type="password" class="form-input" />
+          <VeeField
+            v-model="form.password"
+            name="password"
+            label="Password"
+            id="password"
+            type="password"
+            class="form-input"
+            rules="required|min:8"
+          />
+          <VeeErrorMessage name="password" class="form-error" />
         </div>
 
         <div class="form-group">
@@ -31,8 +67,9 @@
               <img :src="avatarPreview" class="avatar-xlarge">
             </div>
           </label>
-          <input
+          <VeeField
             v-show="!avatarPreview"
+            name="avatar"
             id="avatar"
             type="file"
             accept="image/*"
@@ -44,7 +81,8 @@
         <div class="form-actions">
           <button type="submit" class="btn-blue btn-block">Register</button>
         </div>
-      </form>
+      </VeeForm>
+
       <div class="text-center push-top">
         <button class="btn-red btn-xsmall" @click="registerWithGoogle">
           <i class="fa fa-google fa-btn"></i>Sign up with Google
