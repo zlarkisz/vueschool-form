@@ -12,6 +12,7 @@
           <VeeField
             v-model="form.name"
             name="name"
+            label="Name"
             id="name"
             type="text"
             class="form-input"
@@ -25,10 +26,11 @@
           <VeeField
             v-model="form.username"
             name="username"
+            label="Username"
             id="username"
             type="text"
             class="form-input"
-            rules="required"
+            rules="required|unique:users,username"
           />
           <VeeErrorMessage name="username" class="form-error" />
         </div>
@@ -38,10 +40,11 @@
           <VeeField
             v-model="form.email"
             name="email"
+            label="Email"
             id="email"
             type="email"
             class="form-input"
-            rules="required|email"
+            rules="required|email|unique:users,email"
           />
           <VeeErrorMessage name="email" class="form-error" />
         </div>
@@ -70,6 +73,7 @@
           <VeeField
             v-show="!avatarPreview"
             name="avatar"
+            label="Avatar"
             id="avatar"
             type="file"
             accept="image/*"
