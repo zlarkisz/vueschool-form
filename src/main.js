@@ -9,6 +9,7 @@ import FontAwesome from '@/plugins/FontAwesome'
 import ClickOutsideDirective from '@/plugins/ClickOutsideDirective'
 import PageScrollDirective from '@/plugins/PageScrollDirective'
 import Vue3Pagination from '@/plugins/Vue3Pagination'
+import VeeValidatePlugin from '@/plugins/VeeValidatePlugin'
 
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig)
@@ -21,5 +22,6 @@ forumApp.use(FontAwesome)
 forumApp.use(ClickOutsideDirective)
 forumApp.use(PageScrollDirective)
 forumApp.use(Vue3Pagination)
+forumApp.use(VeeValidatePlugin)
 forumApp.component('AppDate', AppDate)
 forumApp.mount('#app')
