@@ -22,6 +22,8 @@
         </label>
       </p>
 
+      <UserProfileCardEditorRandomAvatar @hit="activeUser.avatar = $event" />
+
       <div class="form-group">
         <input
           v-model="activeUser.username"
@@ -99,13 +101,15 @@
 import { mapActions } from 'vuex'
 import AppSpinner from '@/components/AppSpinner.vue'
 import AppAvatarImage from '@/components/AppAvatarImage.vue'
+import UserProfileCardEditorRandomAvatar from '@/components/UserProfileCardEditorRandomAvatar.vue'
 
 export default {
   name: 'UserProfileCardEditor',
 
   components: {
     AppSpinner,
-    AppAvatarImage
+    AppAvatarImage,
+    UserProfileCardEditorRandomAvatar
   },
 
   props: {
@@ -140,7 +144,18 @@ export default {
       this.uploadingImage = false
     },
 
-    save () {
+    async handleRandomAvatarUpload () {
+      const randomAvatarGenerated = this.activeUser.avatar.startsWith('https://pixabay')
+
+      if (randomAvatarGenerated) {
+        const image = await fetch(this.activeUser.avatar)
+        const blob = await image.blob()
+        this.activeUser.avatar = await this.uploadAvatar({ file: blob, filename: 'random' })
+      }
+    },
+
+    async save () {
+      await this.handleRandomAvatarUpload()
       this.$store.dispatch('users/updateUser', { ...this.activeUser })
       this.$router.push({ name: 'Profile' })
     },
