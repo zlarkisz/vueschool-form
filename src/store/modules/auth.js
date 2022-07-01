@@ -71,14 +71,15 @@ export default {
       await dispatch('users/createUser', { id: result.user.uid, email, name, username, avatar }, { root: true })
     },
 
-    async uploadAvatar ({ state }, { authId, file }) {
+    async uploadAvatar ({ state }, { authId, file, filename }) {
       if (!file) return null
 
       authId = authId ?? state.authId
+      filename = filename || file.name
 
       let url
       const storage = getStorage()
-      const storageRef = ref(storage, `uploads/${authId}/images/${Date.now()}-${file.name}`)
+      const storageRef = ref(storage, `uploads/${authId}/images/${Date.now()}-${filename}`)
       const uploadTask = uploadBytesResumable(storageRef, file)
 
       return new Promise((resolve, reject) => {
@@ -100,7 +101,7 @@ export default {
             // A full list of error codes is available at
             // https://firebase.google.com/docs/storage/web/handle-errors
             const { addNotification } = useNotifications()
-            addNotification({ message: 'Error uploading avatar image', type: 'error' })
+            addNotification({ timeout: 3000, message: 'Error uploading avatar image', type: 'error' })
             reject(error.code)
             switch (error.code) {
               case 'storage/unauthorized':
