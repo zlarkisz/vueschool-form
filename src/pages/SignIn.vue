@@ -2,34 +2,24 @@
 <template>
   <div class="flex-grid justify-center">
     <div class="col-2">
-      <VeeForm @submit.prevent="signIn" class="card card-form">
+      <VeeForm @submit="signIn" class="card card-form">
         <h1 class="text-center">Login</h1>
 
-        <div class="form-group">
-          <label for="email">Email</label>
-          <VeeField
-            v-model="form.email"
-            name="email"
-            id="email"
-            type="text"
-            class="form-input"
-            rules="required"
-          />
-          <VeeErrorMessage name="email" class="form-error" />
-        </div>
+        <AppFormField
+          v-model="form.email"
+          name="email"
+          label="Email"
+          rules="required|email"
+          type="email"
+        />
 
-        <div class="form-group">
-          <label for="password">Password</label>
-          <VeeField
-            v-model="form.password"
-            name="password"
-            id="password"
-            type="password"
-            class="form-input"
-            rules="required"
-          />
-          <VeeErrorMessage name="password" class="form-error" />
-        </div>
+        <AppFormField
+          v-model="form.password"
+          name="password"
+          label="Password"
+          rules="required"
+          type="password"
+        />
 
         <div class="push-top">
           <button type="submit" class="btn-blue btn-block">Log in</button>
@@ -50,8 +40,15 @@
 </template>
 
 <script>
+import AppFormField from '@/components/AppFormField.vue'
+import useNotifications from '@/composables/useNotification'
+
 export default {
   name: 'SignIn',
+
+  components: {
+    AppFormField
+  },
 
   data () {
     return {
@@ -68,7 +65,8 @@ export default {
         await this.$store.dispatch('auth/signInWithEmailAndPassword', { ...this.form })
         this.successRedirect()
       } catch (error) {
-        alert(error.message)
+        const { addNotification } = useNotifications()
+        addNotification({ message: error.message, timeout: 5000 })
       }
     },
 

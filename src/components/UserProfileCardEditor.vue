@@ -1,6 +1,6 @@
 <template>
   <div class="profile-card">
-    <form @submit.prevent="save">
+    <VeeForm @submit="save">
       <p class="text-center avatar-edit">
         <label for="avatar">
           <AppAvatarImage
@@ -24,33 +24,27 @@
 
       <UserProfileCardEditorRandomAvatar @hit="activeUser.avatar = $event" />
 
-      <div class="form-group">
-        <input
-          v-model="activeUser.username"
-          type="text"
-          placeholder="Username"
-          class="form-input text-lead text-bold"
-        />
-      </div>
+      <AppFormField
+        v-model="activeUser.username"
+        name="username"
+        label="Username"
+        :rules="`required|unique:users,username${user.username}`"
+      />
 
-      <div class="form-group">
-        <input
-          v-model="activeUser.name"
-          type="text"
-          placeholder="Full Name"
-          class="form-input text-lead"
-        />
-      </div>
+      <AppFormField
+        v-model="activeUser.name"
+        rules="required"
+        label="Full Name"
+        name="name"
+      />
 
-      <div class="form-group">
-        <label for="user_bio">Bio</label>
-        <textarea
-          v-model="activeUser.bio"
-          class="form-input"
-          id="user_bio"
-          placeholder="Write a few words about yourself."
-        ></textarea>
-      </div>
+      <AppFormField
+        v-model="activeUser.bio"
+        name="bio"
+        label="Bio"
+        as="textarea"
+        placeholder="Write a few words about yourself."
+      />
 
       <div class="stats">
         <span>{{ user.postsCount }} posts</span>
@@ -59,41 +53,41 @@
 
       <hr />
 
-      <div class="form-group">
-        <label class="form-label" for="user_website">Website</label>
-        <input
-          v-model="activeUser.website"
-          autocomplete="off"
-          class="form-input"
-          id="user_website"
-        />
-      </div>
+      <AppFormField
+        v-model="activeUser.website"
+        name="website"
+        label="Website"
+        rules="url"
+      />
 
-      <div class="form-group">
-        <label class="form-label" for="user_email">Email</label>
-        <input
-          v-model="activeUser.email"
-          autocomplete="off"
-          class="form-input"
-          id="user_email"
-        />
-      </div>
+      <AppFormField
+        v-model="activeUser.email"
+        name="email"
+        label="Email"
+        :rules="`required|email|unique:esers,email${user.email}`"
+      />
 
-      <div class="form-group">
-        <label class="form-label" for="user_location">Location</label>
-        <input
-          v-model="activeUser.location"
-          autocomplete="off"
-          class="form-input"
-          id="user_location"
+      <AppFormField
+        v-model="activeUser.location"
+        name="location"
+        label="Location"
+        list="locations"
+        @mouseenter="loadLocationOptions"
+      />
+
+      <datalist id="locations">
+        <option
+          v-for="location in locationOptions"
+          :key="location.name.common"
+          :value="location.name.common"
         />
-      </div>
+      </datalist>
 
       <div class="btn-group space-between">
         <button class="btn-ghost" @click.prevent="cancel">Cancel</button>
         <button type="submit" class="btn-blue">Save</button>
       </div>
-    </form>
+    </VeeForm>
   </div>
 </template>
 
@@ -102,6 +96,7 @@ import { mapActions } from 'vuex'
 import AppSpinner from '@/components/AppSpinner.vue'
 import AppAvatarImage from '@/components/AppAvatarImage.vue'
 import UserProfileCardEditorRandomAvatar from '@/components/UserProfileCardEditorRandomAvatar.vue'
+import AppFormField from '@/components/AppFormField.vue'
 
 export default {
   name: 'UserProfileCardEditor',
@@ -109,7 +104,8 @@ export default {
   components: {
     AppSpinner,
     AppAvatarImage,
-    UserProfileCardEditorRandomAvatar
+    UserProfileCardEditorRandomAvatar,
+    AppFormField
   },
 
   props: {
@@ -122,12 +118,19 @@ export default {
   data () {
     return {
       uploadingImage: false,
-      activeUser: { ...this.user }
+      activeUser: { ...this.user },
+      locationOptions: []
     }
   },
 
   methods: {
     ...mapActions('auth', ['uploadAvatar']),
+
+    async loadLocationOptions () {
+      if (this.locationOptions.length) return
+      const res = await fetch('https://restcountries.com/v3/all')
+      this.locationOptions = await res.json()
+    },
 
     async handleAvatarUpload (e) {
       this.uploadingImage = true
