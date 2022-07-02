@@ -1,19 +1,31 @@
 <template>
   <div class="col-full">
-    <form @submit.prevent="save">
-      <div class="form-group">
-        <textarea v-model="postCopy.text" name="" id="" cols="30" rows="10" class="form-input" />
-      </div>
+    <VeeForm @submit="save" :key="formKey">
+      <AppFormField
+        v-model="postCopy.text"
+        name="text"
+        rules="required"
+        as="textarea"
+        rows="10"
+        cols="30"
+      />
+
       <div class="form-actions">
         <button class="btn-blue">{{ post.id ? 'Update post' : 'Submit post' }}</button>
       </div>
-    </form>
+    </VeeForm>
   </div>
 </template>
 
 <script>
+import AppFormField from '@/components/AppFormField.vue'
+
 export default {
   name: 'PostEditor',
+
+  components: {
+    AppFormField
+  },
 
   props: {
     post: {
@@ -24,7 +36,8 @@ export default {
 
   data () {
     return {
-      postCopy: { ...this.post }
+      postCopy: { ...this.post },
+      formKey: Math.random()
     }
   },
 
@@ -32,6 +45,7 @@ export default {
     save () {
       this.$emit('save', { post: this.postCopy })
       this.postCopy.text = ''
+      this.formKey = Math.random()
     }
   }
 }

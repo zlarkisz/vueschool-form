@@ -1,27 +1,21 @@
 <template>
-  <form @submit.prevent="save">
-    <div class="form-group">
-      <label for="thread_title">Title:</label>
-      <input
-        v-model="form.title"
-        type="text"
-        id="thread_title"
-        class="form-input"
-        name="title"
-      />
-    </div>
+  <VeeForm @submit="save">
+    <AppFormField
+      v-model="form.title"
+      name="title"
+      label="Title"
+      rules="required"
+    />
 
-    <div class="form-group">
-      <label for="thread_content">Content:</label>
-      <textarea
-        v-model="form.text"
-        id="thread_content"
-        class="form-input"
-        name="content"
-        rows="8"
-        cols="140"
-      ></textarea>
-    </div>
+    <AppFormField
+      v-model="form.text"
+      name="text"
+      label="Content"
+      rules="required"
+      as="textarea"
+      rows="8"
+      cols="140"
+    />
 
     <div class="btn-group">
       <button type="button" class="btn btn-ghost" @click.prevent="$emit('cencel')">Cancel</button>
@@ -29,12 +23,18 @@
         {{ existing ? 'Update' : 'Publish'}}
       </button>
     </div>
-  </form>
+  </VeeForm>
 </template>
 
 <script>
+import AppFormField from '@/components/AppFormField.vue'
+
 export default {
   name: 'ThreadEditor',
+
+  components: {
+    AppFormField
+  },
 
   props: {
     title: {
