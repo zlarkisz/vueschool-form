@@ -20,7 +20,6 @@ export default {
       onSnapshotFunction = null
     }
   ) {
-    console.log('🔥', emoji, id)
     const db = getFirestore()
 
     return new Promise(resolve => {
@@ -63,11 +62,17 @@ export default {
       onSnapshotFunction = null
     }
   ) {
+    ids = ids || []
+
     return Promise.all(ids?.map(id => dispatch('fetchItem', { id, resource, emoji, onSnapshotFunction })))
   },
 
   async unsubscribeAllSnapshots ({ state, commit }) {
     state.unsubscribes.forEach(unsubscribe => unsubscribe())
     commit('clearAllUnsubsribe')
+  },
+
+  clearItems ({ commit }, { modules = [] }) {
+    commit('clearItems', { modules })
   }
 }

@@ -16,7 +16,7 @@
       </div>
     </div>
 
-    <div v-if="threads && threads.length" class="col-full push-top">
+    <div class="col-full push-top">
       <ThreadList :threads="threads" />
 
       <v-pagination
@@ -70,7 +70,7 @@ export default {
     },
 
     threadCount () {
-      return this.forum.threads.length
+      return this.forum.threads?.length || 0
     },
 
     totalPages () {

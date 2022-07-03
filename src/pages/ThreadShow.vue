@@ -23,7 +23,10 @@
         style="float: right; margin-top: 2px;"
         class="hide-mobile text-fade text-small"
       >
-        {{ thread.repliesCount }} replies by {{ thread.contributorsCount }} contributors
+        {{ thread.repliesCount }}
+        {{thread.repliesCount === 1 ? 'reply' : 'replies'}}
+        by {{ thread.contributorsCount }}
+        {{thread.contributorsCount === 1 ? 'contributor' : 'contributors'}}
       </span>
     </p>
 

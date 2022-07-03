@@ -20,7 +20,10 @@ import {
   signOut,
   GoogleAuthProvider,
   signInWithPopup,
-  onAuthStateChanged
+  onAuthStateChanged,
+  updateEmail,
+  EmailAuthProvider,
+  reauthenticateWithCredential
 } from 'firebase/auth'
 import useNotifications from '@/composables/useNotification'
 
@@ -40,6 +43,21 @@ export default {
   },
 
   actions: {
+    async updateEmail ({ state }, { email }) {
+      const auth = getAuth()
+      const currentUser = auth.currentUser
+      const res = await updateEmail(currentUser, email)
+
+      return res
+    },
+
+    async reauthenticate ({ state }, { email, password }) {
+      const auth = getAuth()
+      const user = auth.currentUser
+      const credential = EmailAuthProvider.credential(email, password)
+      await reauthenticateWithCredential(user, credential)
+    },
+
     initAuthentication ({ dispatch, commit, state }) {
       if (state.authObservereUnsubscribe) state.authObservereUnsubscribe()
 
@@ -47,7 +65,6 @@ export default {
         const auth = getAuth()
 
         const unsubscribe = onAuthStateChanged(auth, async (user) => {
-          console.log('👣 the user has changed')
           dispatch('unsubscribeAuthUserSnapshot')
 
           if (user) {
@@ -121,7 +138,6 @@ export default {
           () => {
             // Upload completed successfully, now we can get the download URL
             getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-              console.log('File available at', downloadURL)
               url = downloadURL
               resolve(url)
             })

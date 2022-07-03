@@ -43,7 +43,9 @@ export default {
           },
 
           get contributorsCount () {
-            return thread.contributors?.length || 0
+            if (!thread.contributors) return 0
+
+            return thread.contributors?.length
           }
         }
       }
@@ -88,7 +90,7 @@ export default {
       )
       commit('users/appendThreadToUser', { parentId: userId, childId: threadRef.id }, { root: true })
       commit('forums/appendThreadToForum', { parentId: forumId, childId: threadRef.id }, { root: true })
-      await dispatch('posts/createPost', { text, threadId: threadRef.id }, { root: true })
+      await dispatch('posts/createPost', { text, threadId: threadRef.id, firstInThread: true }, { root: true })
 
       return findById(state.items, threadRef.id)
     },
