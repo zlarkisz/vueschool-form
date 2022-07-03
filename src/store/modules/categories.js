@@ -20,7 +20,6 @@ export default {
     fetchCategories: makeFetchItemsAction({ emoji: '🏷', resource: 'categories' }),
 
     fetchAllCategories ({ commit }) {
-      console.log('🔥', '🏷', 'all')
       const db = getFirestore()
       const colRef = collection(db, 'categories')
 

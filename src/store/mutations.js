@@ -1,6 +1,12 @@
 import { upsert, docToResource } from '@/helpers'
 
 export default {
+  clearItems (state, { modules = [] }) {
+    modules.forEach(module => {
+      state[module].items = []
+    })
+  },
+
   setItem (state, { resource, item }) {
     upsert(state[resource].items, docToResource(item))
   },
