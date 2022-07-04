@@ -1,6 +1,5 @@
 import { createApp } from 'vue'
 import App from './App.vue'
-import AppDate from '@/components/AppDate'
 import router from '@/router'
 import store from './store'
 import * as firebase from 'firebase/app'
@@ -10,6 +9,7 @@ import ClickOutsideDirective from '@/plugins/ClickOutsideDirective'
 import PageScrollDirective from '@/plugins/PageScrollDirective'
 import Vue3Pagination from '@/plugins/Vue3Pagination'
 import VeeValidatePlugin from '@/plugins/VeeValidatePlugin'
+import { createHead } from '@vueuse/head'
 
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig)
@@ -23,5 +23,18 @@ forumApp.use(ClickOutsideDirective)
 forumApp.use(PageScrollDirective)
 forumApp.use(Vue3Pagination)
 forumApp.use(VeeValidatePlugin)
-forumApp.component('AppDate', AppDate)
+forumApp.use(createHead())
+
+const requireComponent = require.context('./components', true, /App[A-Z]\w+\.(vue|js)$/)
+requireComponent.keys().forEach(function (fileName) {
+  let baseComponentConfig = requireComponent(fileName)
+  baseComponentConfig = baseComponentConfig.default || baseComponentConfig
+  const baseComponentName = baseComponentConfig.name || (
+    fileName
+      .replace(/^.+\//, '')
+      .replace(/\.\w+$/, '')
+  )
+  forumApp.component(baseComponentName, baseComponentConfig)
+})
+
 forumApp.mount('#app')
